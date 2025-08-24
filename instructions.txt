@@ -1,0 +1,49 @@
+START DATE: AUGUST 13, 2025 
+END DATE: AUGUST 25, 2025
+
+I. OBJECTIVES
+Write a program to simulate the non-preemptive CPU scheduling algorithms to find
+turnaround time and waiting time for the above problem using FCFS.
+
+II. DISCUSSION
+CPU Scheduling maybe classified as non-preemptive and preemptive. Non-
+preemptive scheduling is where the CPU cannot be taken away from its currently
+executing process. While the preemptive scheduling is when the CPU can be taken
+away from its currently executing process
+
+Related Terms
+1. Turn-Around time - the time between the point a process is submitted and
+the time it finishes executing
+2. Waiting time – the time a process has to spend inside the ready queue
+waiting to be executed by the CPU
+3. FCFS – First come first serve. It is a non-preemptive scheduling algorithm
+wherein the one that enters the ready queue first gets to be executed by the
+CPU first.
+
+IV. METHODOLOGY
+1. Let the user enter the no of process. Valid no of process is from 3-10 only.
+2. Enter the process ID, arrival time and the burst time based on the number of process
+the user wants to compute
+3. Then calculate and display the waiting time, turnaround time, average waiting time and
+average turn-around time of the process accordingly.
+4. Provide all possible validations.
+
+V. SAMPLE OUTPUT
+Enter the no. of process: 5
+Enter process ID for Process1: P1
+Enter process ID for Process2: P2
+Enter process ID for Process3: P3
+Enter process ID for Process4: P4
+Enter process ID for Process5: P5
+Enter waiting time for P1: 2
+Enter waiting time for P2: 0
+Enter waiting time for P3: 3
+Enter waiting time for P4: 9
+Enter waiting time for P5: 6
+Enter burst time for P1: 8
+Enter burst time for P2: 4
+Enter burst time for P3: 2
+Enter burst time for P4: 5
+Enter burst time for P5: 7                       
+Average waiting: 6.2
+Average turn-around time: 11.4
