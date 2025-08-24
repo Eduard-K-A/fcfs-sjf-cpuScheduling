@@ -17,6 +17,7 @@ public:
     { // function to set number of processes
         cout << "Enter number of processes: ";
         cin >> processCount;
+        return processCount;
     }
 
     int getProcessCount() const
@@ -48,12 +49,12 @@ public:
     }
 };
 
-Process createTable(Process u.processCount)
+Process createTable(int processCount)
 {
     cout << "--------------------------------------------------------" << endl;
     cout << "| Process ID|" << setw(10) << " Arrival Time |" << setw(10) << " Burst Time |" << setw(10) << " Waiting Time |" << setw(10) << "" << endl;
     // Function to create a table for visual aid in CPU scheduling
-    for (int i = 0; i < u.process; i++)
+    for (int i = 0; i < processCount; i++)
     {
         cout << "|" << setw(6) << i + 1 << setw(6)             // Process ID
              << "|" << setw(7) << 0 << setw(8)                 // Arrival Time
@@ -63,12 +64,14 @@ Process createTable(Process u.processCount)
         // Logic to create a row for each process
     }
     cout << "--------------------------------------------------------" << endl;
+
+    return Process();
 }
 
 int main()
 {
 
-    int processCount = 5;
-    createTable(processCount);
+    Process u;
+    createTable(u.processCtr());
     return 0;
 }

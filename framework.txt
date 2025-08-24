@@ -1,4 +1,7 @@
 create a table (for visual aid) simulating CPU scheduling
 let user input required values
 
-dyanomically adjusts the number of processes (in table) depending on user's input
+dyanamically adjusts the number of processes (in table) depending on user's input
+
+//done 
+made dynamic table depending on process size
