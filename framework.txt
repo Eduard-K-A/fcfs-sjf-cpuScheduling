@@ -4,4 +4,4 @@ let user input required values
 dyanamically adjusts the number of processes (in table) depending on user's input
 
 //done 
-made dynamic table depending on process size
+2nd commit - made dynamic table depending on process size
