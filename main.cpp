@@ -1,20 +1,22 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <set> // for storing used process IDs
+#include <set>   
+#include <string>
+#include <algorithm> 
 using namespace std;
 
 class Process
 {
 private:
-    int processID;
+    string processID;   // ✅ Changed to string
     int arrivalTime;
     int burstTime;
     int waitingTime;
     int turnaroundTime;
 
 public:
-    Process(int id = 0, int at = 0, int bt = 0)
+    Process(string id = "", int at = 0, int bt = 0)
     {
         processID = id;
         arrivalTime = at;
@@ -24,7 +26,7 @@ public:
     }
 
     // Getters
-    int getProcessID() const { return processID; }
+    string getProcessID() const { return processID; }  // ✅ returns string now
     int getArrivalTime() const { return arrivalTime; }
     int getBurstTime() const { return burstTime; }
     int getWaitingTime() const { return waitingTime; }
@@ -63,13 +65,13 @@ void computeTimes(vector<Process> &processes)
 void createTable(const vector<Process> &processes)
 {
     cout << "---------------------------------------------------------------------------\n";
-    cout << "| Process ID | Arrival Time | Burst Time | Waiting Time | Turnaround Time |\n";
+    cout << "| Process ID   | Arrival Time | Burst Time | Waiting Time | Turnaround Time |\n";
     cout << "---------------------------------------------------------------------------\n";
 
     double totalWT = 0, totalTAT = 0;
     for (const auto &p : processes)
     {
-        cout << setw(7) << p.getProcessID()
+        cout << setw(10) << p.getProcessID()
              << setw(14) << p.getArrivalTime()
              << setw(14) << p.getBurstTime()
              << setw(14) << p.getWaitingTime()
@@ -102,25 +104,23 @@ int main()
     } while (processCount < 3 || processCount > 10);
 
     vector<Process> processes;
-    set<int> usedIDs; // to store already entered process IDs
+    set<string> usedIDs; // ✅ store string IDs
 
     for (int i = 0; i < processCount; i++)
     {
-        int id, at, bt;
+        string id;
+        int at, bt;
 
         cout << "\nEnter details for Process " << (i + 1) << ":\n";
 
-        // ✅ Process ID validation (must be unique)
+        // ✅ Process ID validation (must be unique string)
         while (true)
         {
-            cout << "Process ID: ";
-            if (!(cin >> id))
-            {
-                cout << "Invalid input! Enter a valid integer for Process ID.\n";
-                cin.clear();
-                cin.ignore(1000, '\n');
-                continue;
-            }
+            cout << "Process ID (string): ";
+            cin >> id;
+
+            transform(id.begin(), id.end(), id.begin(), ::toupper);
+
             if (usedIDs.count(id))
             {
                 cout << "Process ID already exists! Enter a unique Process ID.\n";
