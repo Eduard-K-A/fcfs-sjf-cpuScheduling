@@ -90,6 +90,8 @@ int main()
 {
     int processCount;
 
+    cout << "First-Come, First-Served (FCFS) Non-Preemptive CPU Scheduling Algorithm\n";
+
     // Validate number of processes
     do
     {
