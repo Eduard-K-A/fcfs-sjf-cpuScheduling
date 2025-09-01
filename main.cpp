@@ -89,7 +89,17 @@ void createTable(const vector<Process> &processes)
 int main()
 {
     int processCount;
+    int choice;
 
+    cout << "Choose a CPU Scheduling Algorithm:\n";
+    cout << "1. First-Come, First-Served (FCFS) Non-Preemptive\n";
+    cout << "2. Shortest Job First (SJF) Non-Preemptive\n";
+    cout << "Enter your choice (1 or 2): ";
+    cin >> choice;
+
+    switch(choice)
+    {
+        case 1:
     cout << "First-Come, First-Served (FCFS) Non-Preemptive CPU Scheduling Algorithm\n";
 
     // Validate number of processes
@@ -158,6 +168,19 @@ int main()
 
     // Print results
     createTable(processes);
+
+    break;
+
+        case 2:
+            cout << "Shortest Job First (SJF) Non-Preemptive CPU Scheduling Algorithm\n";
+            // Implementation for SJF can be added here
+            cout << "SJF implementation is not yet available.\n";
+            break;
+
+        default:
+            cout << "Invalid choice! Please restart the program and select a valid option.\n";
+            break;
+    }
 
     return 0;
 }
