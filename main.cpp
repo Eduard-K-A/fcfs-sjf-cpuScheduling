@@ -1,15 +1,15 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <set>   
+#include <set>
 #include <string>
-#include <algorithm> 
+#include <algorithm>
+
 using namespace std;
 
-class Process
-{
+class Process {
 private:
-    string processID;   
+    string processID;
     int arrivalTime;
     int burstTime;
     int waitingTime;
@@ -17,63 +17,75 @@ private:
 
 public:
     Process(string id = "", int at = 0, int bt = 0)
-    {
-        processID = id;
-        arrivalTime = at;
-        burstTime = bt;
-        waitingTime = 0;
-        turnaroundTime = 0;
-    }
+        : processID(id), arrivalTime(at), burstTime(bt), waitingTime(0), turnaroundTime(0) {}
 
-    // Getters
-    string getProcessID() const { return processID; }  
+    string getProcessID() const { return processID; }
     int getArrivalTime() const { return arrivalTime; }
     int getBurstTime() const { return burstTime; }
     int getWaitingTime() const { return waitingTime; }
     int getTurnaroundTime() const { return turnaroundTime; }
 
-    // Setters
     void setWaitingTime(int wt) { waitingTime = wt; }
     void setTurnaroundTime(int tat) { turnaroundTime = tat; }
 };
 
-// Function to compute waiting time and turnaround time (FCFS)
-void computeTimes(vector<Process> &processes)
-{
-    int n = processes.size();
+// Compute times for FCFS
+void computeFCFSTimes(vector<Process>& processes) {
     int currentTime = 0;
-
-    for (int i = 0; i < n; i++)
-    {
-        if (currentTime < processes[i].getArrivalTime())
-        {
-            currentTime = processes[i].getArrivalTime();
-        }
-
-        int wt = currentTime - processes[i].getArrivalTime();
-        if (wt < 0)
-            wt = 0;
-        processes[i].setWaitingTime(wt);
-
-        currentTime += processes[i].getBurstTime();
-        int tat = processes[i].getBurstTime() + processes[i].getWaitingTime();
-        processes[i].setTurnaroundTime(tat);
+    for (auto& p : processes) {
+        if (currentTime < p.getArrivalTime()) currentTime = p.getArrivalTime();
+        int wt = currentTime - p.getArrivalTime();
+        p.setWaitingTime(max(wt, 0));
+        currentTime += p.getBurstTime();
+        p.setTurnaroundTime(p.getWaitingTime() + p.getBurstTime());
     }
 }
 
-// Function to print results in a table
-void createTable(const vector<Process> &processes)
-{
-    cout << "------------------------------------------------------------------------------\n";
-    cout << "| Process ID   | Arrival Time | Burst Time | Waiting Time | Turnaround Time |\n";
-   cout << "------------------------------------------------------------------------------\n";
+// Compute times for SJF Non-Preemptive
+void computeSJFTimes(vector<Process>& processes) {
+    int n = processes.size();
+    int currentTime = 0;
+    vector<bool> completed(n, false);
+    int completedCount = 0;
+
+    while (completedCount < n) {
+        int idx = -1;
+        int minBurst = INT_MAX;
+
+        for (int i = 0; i < n; i++) {
+            if (!completed[i] && processes[i].getArrivalTime() <= currentTime) {
+                if (processes[i].getBurstTime() < minBurst) {
+                    minBurst = processes[i].getBurstTime();
+                    idx = i;
+                }
+            }
+        }
+
+        if (idx == -1) {
+            currentTime++;
+            continue;
+        }
+
+        int wt = currentTime - processes[idx].getArrivalTime();
+        processes[idx].setWaitingTime(max(wt, 0));
+        currentTime += processes[idx].getBurstTime();
+        processes[idx].setTurnaroundTime(processes[idx].getWaitingTime() + processes[idx].getBurstTime());
+        completed[idx] = true;
+        completedCount++;
+    }
+}
+
+// Print results in a table
+void createTable(const vector<Process>& processes) {
+    cout << "-------------------------------------------------------------------------------\n";
+    cout << "| Process ID | Arrival Time | Burst Time | Waiting Time | Turnaround Time |\n";
+    cout << "-------------------------------------------------------------------------------\n";
 
     double totalWT = 0, totalTAT = 0;
-    for (const auto &p : processes)
-    {
+    for (const auto& p : processes) {
         cout << setw(10) << p.getProcessID()
              << setw(14) << p.getArrivalTime()
-             << setw(14) << p.getBurstTime()
+             << setw(12) << p.getBurstTime()
              << setw(14) << p.getWaitingTime()
              << setw(16) << p.getTurnaroundTime() << "\n";
 
@@ -81,60 +93,28 @@ void createTable(const vector<Process> &processes)
         totalTAT += p.getTurnaroundTime();
     }
 
-    cout << "------------------------------------------------------------------------------\n";
-    cout << "Average Waiting Time     : " << fixed << setprecision(2) << (totalWT / processes.size()) << "\n";
-    cout << "Average Turnaround Time  : " << fixed << setprecision(2) << (totalTAT / processes.size()) << "\n";
+    cout << "-------------------------------------------------------------------------------\n";
+    cout << "Average Waiting Time    : " << fixed << setprecision(2) << (totalWT / processes.size()) << "\n";
+    cout << "Average Turnaround Time : " << fixed << setprecision(2) << (totalTAT / processes.size()) << "\n";
 }
 
-int main()
-{
-    int processCount;
-    int choice;
+// Input process details with unique arrival time validation
+void inputProcesses(vector<Process>& processes, int processCount) {
+    set<string> usedIDs;
+    set<int> usedArrivalTimes;
 
-    cout << "Choose a CPU Scheduling Algorithm:\n";
-    cout << "1. First-Come, First-Served (FCFS) Non-Preemptive\n";
-    cout << "2. Shortest Job First (SJF) Non-Preemptive\n";
-    cout << "Enter your choice (1 or 2): ";
-    cin >> choice;
-
-    switch(choice)
-    {
-        case 1:
-    cout << "First-Come, First-Served (FCFS) Non-Preemptive CPU Scheduling Algorithm\n";
-
-    // Validate number of processes
-    do
-    {
-        cout << "Enter number of processes (3-10): ";
-        cin >> processCount;
-        if (cin.fail() || processCount < 3 || processCount > 10)
-        {
-            cout << "Invalid input! Please enter a number between 3 and 10.\n";
-            cin.clear();
-            cin.ignore(1000, '\n');
-        }
-    } while (processCount < 3 || processCount > 10);
-
-    vector<Process> processes;
-    set<string> usedIDs; 
-
-    for (int i = 0; i < processCount; i++)
-    {
+    for (int i = 0; i < processCount; i++) {
         string id;
         int at, bt;
 
         cout << "\nEnter details for Process " << (i + 1) << ":\n";
 
-        // Process ID validation 
-        while (true)
-        {
+        // Process ID validation
+        while (true) {
             cout << "Process ID: ";
             cin >> id;
-
             transform(id.begin(), id.end(), id.begin(), ::toupper);
-
-            if (usedIDs.count(id))
-            {
+            if (usedIDs.count(id)) {
                 cout << "Process ID already exists! Enter a unique Process ID.\n";
                 continue;
             }
@@ -142,19 +122,26 @@ int main()
             break;
         }
 
-        // Arrival Time validation
-        cout << "Arrival Time: ";
-        while (!(cin >> at) || at < 0)
-        {
-            cout << "Invalid input! Arrival Time must be >= 0: ";
-            cin.clear();
-            cin.ignore(1000, '\n');
+        // Arrival Time validation (unique)
+        while (true) {
+            cout << "Arrival Time: ";
+            if (!(cin >> at) || at < 0) {
+                cout << "Invalid input! Arrival Time must be >= 0: ";
+                cin.clear();
+                cin.ignore(1000, '\n');
+                continue;
+            }
+            if (usedArrivalTimes.count(at)) {
+                cout << "Arrival Time already used! Enter a unique Arrival Time.\n";
+                continue;
+            }
+            usedArrivalTimes.insert(at);
+            break;
         }
 
         // Burst Time validation
         cout << "Burst Time: ";
-        while (!(cin >> bt) || bt <= 0)
-        {
+        while (!(cin >> bt) || bt <= 0) {
             cout << "Invalid input! Burst Time must be > 0: ";
             cin.clear();
             cin.ignore(1000, '\n');
@@ -162,25 +149,57 @@ int main()
 
         processes.emplace_back(id, at, bt);
     }
+}
 
-    // Compute times using FCFS
-    computeTimes(processes);
+int main() {
+    char retry;
+    do {
+        int processCount, choice;
+        vector<Process> processes;
 
-    // Print results
-    createTable(processes);
+        cout << "Choose a CPU Scheduling Algorithm:\n";
+        cout << "1. First-Come, First-Served (FCFS) Non-Preemptive\n";
+        cout << "2. Shortest Job First (SJF) Non-Preemptive\n";
+        cout << "Enter your choice (1 or 2): ";
+        cin >> choice;
 
-    break;
+        do {
+            cout << "Enter number of processes (3-10): ";
+            cin >> processCount;
+            if (cin.fail() || processCount < 3 || processCount > 10) {
+                cout << "Invalid input! Please enter a number between 3 and 10.\n";
+                cin.clear();
+                cin.ignore(1000, '\n');
+            }
+        } while (processCount < 3 || processCount > 10);
 
-        case 2:
-            cout << "Shortest Job First (SJF) Non-Preemptive CPU Scheduling Algorithm\n";
-            // Implementation for SJF can be added here
-            cout << "SJF implementation is not yet available.\n";
-            break;
+        inputProcesses(processes, processCount);
 
-        default:
-            cout << "Invalid choice! Please restart the program and select a valid option.\n";
-            break;
-    }
+        switch (choice) {
+            case 1:
+                cout << "\nFirst-Come, First-Served (FCFS) Non-Preemptive CPU Scheduling\n";
+                sort(processes.begin(), processes.end(), [](const Process& a, const Process& b) {
+                    return a.getArrivalTime() < b.getArrivalTime();
+                });
+                computeFCFSTimes(processes);
+                break;
+            case 2:
+                cout << "\nShortest Job First (SJF) Non-Preemptive CPU Scheduling\n";
+                computeSJFTimes(processes);
+                break;
+            default:
+                cout << "Invalid choice! Exiting program.\n";
+                return 0;
+        }
 
+        createTable(processes);
+
+        cout << "\nDo you want to try again? (Y/N): ";
+        cin >> retry;
+        retry = toupper(retry);
+
+    } while (retry == 'Y');
+
+    cout << "Program terminated.\n";
     return 0;
 }
