@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 #include <algorithm>
+#include <climits>
 
 using namespace std;
 
@@ -41,38 +42,63 @@ void computeFCFSTimes(vector<Process>& processes) {
     }
 }
 
-// Compute times for SJF Non-Preemptive
+// Compute times for SJF Non-Preemptive (refactored from your TypeScript reference)
 void computeSJFTimes(vector<Process>& processes) {
     int n = processes.size();
     int currentTime = 0;
-    vector<bool> completed(n, false);
     int completedCount = 0;
+    vector<bool> completed(n, false);
 
     while (completedCount < n) {
+        // find ready processes
         int idx = -1;
-        int minBurst = INT_MAX;
+        int minBT = INT_MAX;
 
         for (int i = 0; i < n; i++) {
             if (!completed[i] && processes[i].getArrivalTime() <= currentTime) {
-                if (processes[i].getBurstTime() < minBurst) {
-                    minBurst = processes[i].getBurstTime();
+                if (processes[i].getBurstTime() < minBT) {
+                    minBT = processes[i].getBurstTime();
                     idx = i;
+                } else if (processes[i].getBurstTime() == minBT) {
+                    // tie-breaker: earlier arrival
+                    if (processes[i].getArrivalTime() < processes[idx].getArrivalTime()) {
+                        idx = i;
+                    }
                 }
             }
         }
 
+        // if no job is ready, jump to next available
         if (idx == -1) {
-            currentTime++;
+            int nextArrival = INT_MAX;
+            for (int i = 0; i < n; i++) {
+                if (!completed[i]) {
+                    nextArrival = min(nextArrival, processes[i].getArrivalTime());
+                }
+            }
+            currentTime = nextArrival;
             continue;
         }
 
-        int wt = currentTime - processes[idx].getArrivalTime();
-        processes[idx].setWaitingTime(max(wt, 0));
-        currentTime += processes[idx].getBurstTime();
-        processes[idx].setTurnaroundTime(processes[idx].getWaitingTime() + processes[idx].getBurstTime());
+        // execute chosen job
+        int startTime = max(currentTime, processes[idx].getArrivalTime());
+        int finishTime = startTime + processes[idx].getBurstTime();
+        int waitingTime = startTime - processes[idx].getArrivalTime();
+
+        processes[idx].setWaitingTime(waitingTime);
+        processes[idx].setTurnaroundTime(waitingTime + processes[idx].getBurstTime());
+
+        currentTime = finishTime;
         completed[idx] = true;
         completedCount++;
     }
+
+    // stable sort by arrival time, then ID
+    sort(processes.begin(), processes.end(), [](const Process& a, const Process& b) {
+        if (a.getArrivalTime() == b.getArrivalTime())
+            return a.getProcessID() < b.getProcessID();
+        return a.getArrivalTime() < b.getArrivalTime();
+    });
 }
 
 // Print results in a table
